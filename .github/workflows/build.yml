@@ -1,4 +1,4 @@
-name: CI
+mande esto name: CI
 
 on:
   push:
@@ -21,19 +21,42 @@ jobs:
       - name: Install Android Build Dependencies
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libssl-dev libffi-dev libsqlite3-dev tk-dev libgdbm-compat-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+          sudo apt install -y \
+            git zip unzip openjdk-17-jdk \
+            autoconf automake libtool m4 \
+            pkg-config \
+            zlib1g-dev libncurses5-dev libgdbm-dev \
+            libssl-dev libffi-dev libsqlite3-dev \
+            tk-dev libgdbm-compat-dev \
+            libreadline-dev liblzma-dev \
+            cmake ninja-build
+          
+          # Rebuild libtool macros
+          sudo libtoolize --force --copy --quiet || true
 
-      - name: Install Buildozer
+      - name: Install Buildozer and Dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install buildozer cython virtualenv
+          python -m pip install --upgrade pip setuptools wheel
+          pip install buildozer cython virtualenv pycparser
+
+      - name: Create Buildozer Config Cache Directory
+        run: mkdir -p ~/.buildozer
 
       - name: Build APK
         run: |
-          yes | buildozer android debug
+          buildozer android debug 2>&1 | tee build.log
+        continue-on-error: false
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: apk
           path: bin/*.apk
+
+      - name: Upload Build Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: build.log
