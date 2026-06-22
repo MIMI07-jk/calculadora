@@ -37,21 +37,21 @@ jobs:
       - name: Install Buildozer and Dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          # Fijamos Cython a la versión exacta que requiere Kivy 2.3.0 de manera estable
           pip install "cython<3.0.0" virtualenv pycparser
-          pip install git+https://github.com/kivy/buildozer.git@master
+          pip install buildozer
 
       - name: Build APK
         run: |
-          # Limpiar variables heredadas del sistema que chocan con Buildozer
+          # Limpiar carpetas viejas o corruptas de forma segura
+          rm -rf .buildozer/
+          rm -rf bin/
+          
+          # Eliminar variables heredadas del sistema
           unset ANDROID_NDK_HOME
           unset ANDROID_NDK_ROOT
           unset ANDROID_NDK
           
-          # Forzar limpieza interna previa antes de iniciar el ciclo completo
-          buildozer android clean
-          
-          # Compilar la aplicación
+          # Compilar la aplicación directamente
           buildozer android debug 2>&1 | tee build.log
         continue-on-error: false
 
