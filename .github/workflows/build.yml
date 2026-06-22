@@ -44,6 +44,12 @@ jobs:
 
       - name: Build APK
         run: |
+          # Limpiar variables heredadas del sistema que chocan con Buildozer
+          unset ANDROID_NDK_HOME
+          unset ANDROID_NDK_ROOT
+          unset ANDROID_NDK
+          
+          # Compilar la aplicación
           buildozer android debug 2>&1 | tee build.log
         continue-on-error: false
 
