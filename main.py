@@ -16,40 +16,40 @@ class Principal(Screen):
         self.contador_limpiar = 0
         self.campo_activo = None
 
-        # Contenedor raíz vertical que ocupa TODA la pantalla de forma exacta
+        # Contenedor raíz con márgenes limpios en los bordes de la pantalla
         contenedor_raiz = MDBoxLayout(
             orientation="vertical",
-            padding=[16, 16, 16, 16],
-            spacing=10,
+            padding=[20, 20, 20, 20],
+            spacing=15,  # Más espacio entre bloques para evitar que se vea amontonado
             size_hint=(1, 1)
         )
         
-        # Fondo morado pastel fijo
+        # Fondo morado pastel
         with contenedor_raiz.canvas.before:
-            Color(0.92, 0.92, 0.98, 1) 
+            Color(0.95, 0.95, 0.98, 1) 
             self.rect = Rectangle(size=self.size, pos=self.pos)
         
         contenedor_raiz.bind(size=self._actualizar_fondo, pos=self._actualizar_fondo)
 
-        # Título de la app (Altura fija pequeña)
+        # Título de la app
         titulo = MDLabel(
             text="Calculadora Dual",
             halign="center",
-            font_style="H6",
+            font_style="H5",
             bold=True,
             theme_text_color="Custom",
-            text_color="#000000",  
+            text_color="#2D3748",  
             size_hint_y=None,
-            height=40
+            height=45
         )
         contenedor_raiz.add_widget(titulo)
 
-        # Bloque de entrada de números (Altura fija controlada)
+        # Bloque de entrada de números con altura fija controlada
         bloque_superior = MDBoxLayout(
             orientation="vertical",
-            spacing=10,
+            spacing=12,
             size_hint_y=None,
-            height=130
+            height=140
         )
 
         self.num1 = MDTextField(
@@ -60,7 +60,8 @@ class Principal(Screen):
             hint_text_color_focus="#7F2DCC",
             text_color_normal="#000000",
             text_color_focus="#000000",
-            readonly=True
+            readonly=True,
+            halign="center"
         )
         self.num1.bind(on_touch_down=self.seleccionar_campo)
 
@@ -72,7 +73,8 @@ class Principal(Screen):
             hint_text_color_focus="#7F2DCC",
             text_color_normal="#000000",
             text_color_focus="#000000",
-            readonly=True
+            readonly=True,
+            halign="center"
         )
         self.num2.bind(on_touch_down=self.seleccionar_campo)
 
@@ -82,19 +84,18 @@ class Principal(Screen):
 
         self.campo_activo = self.num1
 
-        # Rejilla del Teclado (Le damos un tamaño proporcional fijo del 45% de la pantalla)
+        # Rejilla del Teclado (Reducido a 0.40 para dejar respirar a la pantalla)
         rejilla_teclado = MDGridLayout(
             cols=4,
-            spacing=6,
-            size_hint_y=0.45
+            spacing=8, # Un poco más de espacio entre botones
+            size_hint_y=0.40
         )
 
-        # Corregido: Agregado un elemento extra para que la cuadrícula de 4 columnas cierre perfectamente (5 filas x 4 cols = 20 campos)
         botones_config = [
-            ("7", "#000000", self.presionar_numero), ("8", "#000000", self.presionar_numero), ("9", "#000000", self.presionar_numero), ("Sumar", "#B283D1", self.sumar),
-            ("4", "#000000", self.presionar_numero), ("5", "#000000", self.presionar_numero), ("6", "#000000", self.presionar_numero), ("Restar", "#B283D1", self.restar),
-            ("1", "#000000", self.presionar_numero), ("2", "#000000", self.presionar_numero), ("3", "#000000", self.presionar_numero), ("Multiplicar", "#B283D1", self.multiplicar),
-            (".", "#000000", self.presionar_numero), ("0", "#000000", self.presionar_numero), ("Limpiar", "#7F2DCC", self.limpiar), ("Dividir", "#B283D1", self.dividir),
+            ("7", "#1A1D20", self.presionar_numero), ("8", "#1A1D20", self.presionar_numero), ("9", "#1A1D20", self.presionar_numero), ("Sumar", "#B283D1", self.sumar),
+            ("4", "#1A1D20", self.presionar_numero), ("5", "#1A1D20", self.presionar_numero), ("6", "#1A1D20", self.presionar_numero), ("Restar", "#B283D1", self.restar),
+            ("1", "#1A1D20", self.presionar_numero), ("2", "#1A1D20", self.presionar_numero), ("3", "#1A1D20", self.presionar_numero), ("Multiplicar", "#B283D1", self.multiplicar),
+            (".", "#1A1D20", self.presionar_numero), ("0", "#1A1D20", self.presionar_numero), ("Limpiar", "#7F2DCC", self.limpiar), ("Dividir", "#B283D1", self.dividir),
             ("√", "#7C3AED", self.raiz), ("x²", "#7C3AED", self.potencia), ("%", "#7C3AED", self.porcentaje), ("C", "#7F2DCC", self.limpiar)
         ]
 
@@ -109,11 +110,11 @@ class Principal(Screen):
         
         contenedor_raiz.add_widget(rejilla_teclado)
 
-        # Sección de Resultados e Historial (Ocupará TODO el espacio restante de forma dinámica)
+        # Sección de Resultados e Historial (Toma todo el espacio de abajo de forma elegante)
         bloque_inferior = MDBoxLayout(
             orientation="vertical",
-            spacing=6,
-            size_hint_y=0.35
+            spacing=8,
+            size_hint_y=0.35  # Distribución uniforme para la zona del historial
         )
 
         self.resultado = MDLabel(
@@ -122,25 +123,25 @@ class Principal(Screen):
             font_style="H6",
             bold=True,
             theme_text_color="Custom",
-            text_color="#000000",  
+            text_color="#1A202C",  
             size_hint_y=None,
-            height=30
+            height=35
         )
 
         historial_titulo = MDLabel(
             text="Historial de operaciones:",
-            halign="left",
+            halign="center",
             font_style="Subtitle2",
             theme_text_color="Custom",
-            text_color="#5D636D",  
+            text_color="#718096",  
             size_hint_y=None,
-            height=20
+            height=25
         )
 
-        # Caja contenedora del historial
-        caja_scroll = MDBoxLayout(padding=[8, 8, 8, 8], size_hint_y=1)
+        # Caja contenedora del historial con bordes simulados por el fondo suave
+        caja_scroll = MDBoxLayout(padding=[12, 12, 12, 12], size_hint_y=1)
         with caja_scroll.canvas.before:
-            Color(1, 1, 1, 0.6) 
+            Color(1, 1, 1, 0.85) # Un blanco más sólido y limpio para leer mejor
             self.rect_scroll = Rectangle(size=caja_scroll.size, pos=caja_scroll.pos)
         caja_scroll.bind(size=self._actualizar_fondo_scroll, pos=self._actualizar_fondo_scroll)
 
@@ -150,10 +151,10 @@ class Principal(Screen):
             text="",
             size_hint_y=None,
             valign="top",
-            halign="left",
+            halign="center",
             theme_text_color="Custom",
-            text_color="#1C2028",  
-            font_style="Body2"
+            text_color="#2D3748",  
+            font_style="Body1"
         )
         self.historial.bind(texture_size=self.actualizar_altura)
         
@@ -181,7 +182,6 @@ class Principal(Screen):
 
     def presionar_numero(self, instance):
         texto_limpio = instance.text.replace("[b]", "").replace("[/b]", "").strip()
-        # Evitamos que intente meter las letras de los botones especiales
         if texto_limpio in ["Sumar", "Restar", "Multiplicar", "Dividir", "Limpiar", "√", "x²", "%", "C"]:
             return
         if self.campo_activo:
@@ -205,7 +205,7 @@ class Principal(Screen):
             return None, None
 
     def agregar_historial(self, texto):
-        self.historial.text += f" •  {texto}\n"
+        self.historial.text += f"{texto}\n"
 
     # ===== OPERACIONES =====
     def sumar(self, obj):
@@ -220,17 +220,6 @@ class Principal(Screen):
         r = operacion(n1, n2)
         self.resultado.text = f"Resultado: {self.formatear(r)}"
         self.agregar_historial(f"{self.formatear(n1)} {simbolo} {self.formatear(n2)} = {self.formatear(r)}")
-
-    def evaluar_operacion_unica(self, operacion, plantilla_historial):
-        self.contador_limpiar = 0
-        if self.campo_activo and self.campo_activo.text:
-            try:
-                n = float(self.campo_activo.text)
-                r = operacion(n)
-                self.resultado.text = f"Resultado: {self.formatear(r)}"
-                self.agregar_historial(plantilla_historial(self.formatear(n), self.formatear(r)))
-            except Exception:
-                self.resultado.text = "Resultado: Error"
 
     def restar(self, obj):
         self.contador_limpiar = 0
