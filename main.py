@@ -19,8 +19,8 @@ class Principal(Screen):
         # Contenedor raíz con márgenes limpios en los bordes de la pantalla
         contenedor_raiz = MDBoxLayout(
             orientation="vertical",
-            padding=[20, 20, 20, 20],
-            spacing=15,  # Más espacio entre bloques para evitar que se vea amontonado
+            padding=[20, 15, 20, 15],
+            spacing=10,  
             size_hint=(1, 1)
         )
         
@@ -31,7 +31,7 @@ class Principal(Screen):
         
         contenedor_raiz.bind(size=self._actualizar_fondo, pos=self._actualizar_fondo)
 
-        # Título de la app
+        # Título de la app (Separado correctamente)
         titulo = MDLabel(
             text="Calculadora Dual",
             halign="center",
@@ -40,16 +40,15 @@ class Principal(Screen):
             theme_text_color="Custom",
             text_color="#2D3748",  
             size_hint_y=None,
-            height=45
+            height=50
         )
         contenedor_raiz.add_widget(titulo)
 
-        # Bloque de entrada de números con altura fija controlada
+        # Bloque de entrada de números (Cambiado a tamaño proporcional para evitar que se pise con el título)
         bloque_superior = MDBoxLayout(
             orientation="vertical",
-            spacing=12,
-            size_hint_y=None,
-            height=140
+            spacing=10,
+            size_hint_y=0.20  
         )
 
         self.num1 = MDTextField(
@@ -84,11 +83,11 @@ class Principal(Screen):
 
         self.campo_activo = self.num1
 
-        # Rejilla del Teclado (Reducido a 0.40 para dejar respirar a la pantalla)
+        # Rejilla del Teclado
         rejilla_teclado = MDGridLayout(
             cols=4,
-            spacing=8, # Un poco más de espacio entre botones
-            size_hint_y=0.40
+            spacing=6, 
+            size_hint_y=0.45  
         )
 
         botones_config = [
@@ -110,11 +109,11 @@ class Principal(Screen):
         
         contenedor_raiz.add_widget(rejilla_teclado)
 
-        # Sección de Resultados e Historial (Toma todo el espacio de abajo de forma elegante)
+        # Sección de Resultados e Historial
         bloque_inferior = MDBoxLayout(
             orientation="vertical",
-            spacing=8,
-            size_hint_y=0.35  # Distribución uniforme para la zona del historial
+            spacing=6,
+            size_hint_y=0.25  
         )
 
         self.resultado = MDLabel(
@@ -125,7 +124,7 @@ class Principal(Screen):
             theme_text_color="Custom",
             text_color="#1A202C",  
             size_hint_y=None,
-            height=35
+            height=30
         )
 
         historial_titulo = MDLabel(
@@ -135,13 +134,12 @@ class Principal(Screen):
             theme_text_color="Custom",
             text_color="#718096",  
             size_hint_y=None,
-            height=25
+            height=20
         )
 
-        # Caja contenedora del historial con bordes simulados por el fondo suave
-        caja_scroll = MDBoxLayout(padding=[12, 12, 12, 12], size_hint_y=1)
+        caja_scroll = MDBoxLayout(padding=[10, 10, 10, 10], size_hint_y=1)
         with caja_scroll.canvas.before:
-            Color(1, 1, 1, 0.85) # Un blanco más sólido y limpio para leer mejor
+            Color(1, 1, 1, 0.85) 
             self.rect_scroll = Rectangle(size=caja_scroll.size, pos=caja_scroll.pos)
         caja_scroll.bind(size=self._actualizar_fondo_scroll, pos=self._actualizar_fondo_scroll)
 
@@ -215,6 +213,11 @@ class Principal(Screen):
             r = n1 + n2
             self.resultado.text = f"Resultado: {self.formatear(r)}"
             self.agregar_historial(f"{self.formatear(n1)} + {self.formatear(n2)} = {self.formatear(r)}")
+
+    def evaluar_operacion(self, operacion, simbolo, n1, n2):
+        r = operacion(n1, n2)
+        self.resultado.text = f"Resultado: {self.formatear(r)}"
+        self.agregar_historial(f"{self.formatear(n1)} {simbolo} {self.formatear(n2)} = {self.formatear(r)}")
 
     def evaluar_operacion(self, operacion, simbolo, n1, n2):
         r = operacion(n1, n2)
