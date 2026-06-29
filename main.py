@@ -16,42 +16,47 @@ class Principal(Screen):
         self.contador_limpiar = 0
         self.campo_activo = None
 
-        # Contenedor raíz adaptado para pantallas móviles y PC
+        # --- FONDO DE LA PANTALLA ---
+        with self.canvas.before:
+            Color(0.92, 0.92, 0.98, 1)  # Morado pastel fijo
+            self.rect = Rectangle(size=self.size, pos=self.pos)
+        self.bind(size=self._actualizar_fondo, pos=self._actualizar_fondo)
+
+        # ScrollView principal para evitar que los elementos se aplasten en pantallas pequeñas
+        scroll_principal = ScrollView(do_scroll_x=False, do_scroll_y=True)
+
+        # Contenedor raíz centrado y con un ancho máximo adaptable
         contenedor_raiz = MDBoxLayout(
             orientation="vertical",
-            padding=[14, 12, 14, 12],
-            spacing=10
+            padding=[16, 20, 16, 20],
+            spacing=16,
+            size_hint_y=None,
+            pos_hint={"center_x": 0.5, "top": 1}
         )
-        
-        # Fondo morado pastel fijo
-        with contenedor_raiz.canvas.before:
-            Color(0.92, 0.92, 0.98, 1) 
-            self.rect = Rectangle(size=self.size, pos=self.pos)
-        
-        contenedor_raiz.bind(size=self._actualizar_fondo, pos=self._actualizar_fondo)
+        contenedor_raiz.bind(minimum_height=contenedor_raiz.setter('height'))
 
         # Título de la app
         titulo = MDLabel(
-            text="",
+            text="Calculadora Dual",
             halign="center",
             font_style="H6",
             bold=True,
             theme_text_color="Custom",
             text_color="#000000",  
             size_hint_y=None,
-            height=35
+            height=40
         )
         contenedor_raiz.add_widget(titulo)
 
-        # Bloque de entrada de números
+        # Bloque de entrada de números (Cambiado a adaptable en lugar de altura fija rígida)
         bloque_superior = MDBoxLayout(
             orientation="vertical",
-            spacing=10,
-            size_hint_y=None,
-            height=120
+            spacing=12,
+            size_hint_y=None
         )
+        bloque_superior.bind(minimum_height=bloque_superior.setter('height'))
 
-        # Campos de texto configurados para mantener el texto oscuro en el celular
+        # Campos de texto
         self.num1 = MDTextField(
             hint_text="Número 1",
             icon_left="numeric-1-box-outline",
@@ -82,11 +87,12 @@ class Principal(Screen):
 
         self.campo_activo = self.num1
 
-        # Rejilla del Teclado (Reducido a 0.42 para que NO aplaste al historial en celular)
+        # Rejilla del Teclado (Fijamos una altura cómoda en píxeles para que los botones mantengan su forma física)
         rejilla_teclado = MDGridLayout(
             cols=4,
-            spacing=6,
-            size_hint_y=0.42
+            spacing=8,
+            size_hint_y=None,
+            height=280  # Altura perfecta para un teclado táctil móvil
         )
 
         botones_config = [
@@ -112,11 +118,12 @@ class Principal(Screen):
         
         contenedor_raiz.add_widget(rejilla_teclado)
 
-        # Sección de Resultados e Historial (Aumentado a 0.38 para garantizar su espacio visual)
+        # Sección de Resultados e Historial
         bloque_inferior = MDBoxLayout(
             orientation="vertical",
-            spacing=4,
-            size_hint_y=0.38
+            spacing=6,
+            size_hint_y=None,
+            height=180 # Espacio fijo garantizado para las respuestas
         )
 
         self.resultado = MDLabel(
@@ -127,7 +134,7 @@ class Principal(Screen):
             theme_text_color="Custom",
             text_color="#000000",  
             size_hint_y=None,
-            height=28
+            height=32
         )
 
         historial_titulo = MDLabel(
@@ -137,17 +144,16 @@ class Principal(Screen):
             theme_text_color="Custom",
             text_color="#5D636D",  
             size_hint_y=None,
-            height=16
+            height=20
         )
 
-        # Caja contenedora del scroll para ponerle un fondo blanco y delimitarlo en el celular
-        caja_scroll = MDBoxLayout(padding=[6, 6, 6, 6])
+        caja_scroll = MDBoxLayout(padding=[8, 8, 8, 8])
         with caja_scroll.canvas.before:
-            Color(1, 1, 1, 0.6) # Fondo blanco semi-transparente para ver el área del historial
+            Color(1, 1, 1, 0.6) 
             self.rect_scroll = Rectangle(size=caja_scroll.size, pos=caja_scroll.pos)
         caja_scroll.bind(size=self._actualizar_fondo_scroll, pos=self._actualizar_fondo_scroll)
 
-        scroll = ScrollView(bar_width=4)
+        scroll_historial = ScrollView(bar_width=4)
 
         self.historial = MDLabel(
             text="",
@@ -160,15 +166,17 @@ class Principal(Screen):
         )
         self.historial.bind(texture_size=self.actualizar_altura)
         
-        scroll.add_widget(self.historial)
-        caja_scroll.add_widget(scroll)
+        scroll_historial.add_widget(self.historial)
+        caja_scroll.add_widget(scroll_historial)
 
         bloque_inferior.add_widget(self.resultado)
         bloque_inferior.add_widget(historial_titulo)
         bloque_inferior.add_widget(caja_scroll)
         
         contenedor_raiz.add_widget(bloque_inferior)
-        self.add_widget(contenedor_raiz)
+        
+        scroll_principal.add_widget(contenedor_raiz)
+        self.add_widget(scroll_principal)
 
     def _actualizar_fondo(self, instance, value):
         self.rect.size = instance.size
